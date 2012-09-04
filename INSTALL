@@ -1,0 +1,33 @@
+WEB画面セットアップ
+
+前提条件
+Apache <--> PHP <--> DB の環境は事前に用意してください。
+
+1) データベース「dns」を作成する
+2) データベース接続用ユーザを作成する（rootでもかまいません）
+3) 初期テーブル作成用SQLを実行  mysql -u root -p  dns < frontend/sql/dump.sql
+4) 管理者アカウントの作成（レコード生成）
+   INSERT INTO admins (userid,username,password) VALUES ('','admin', MD5( 'password' ));
+5) コンフィグ編集 frontend/includes/config.inc.php
+6) 権限変更 chmod 777 frontend/compiled_templates
+管理者用URL -> http://xxx.xxx./dns/admin/
+
+
+Backend Setup:
+1) Place scrips in a directory outside the web interface.
+2) 環境に合わせて編集 -> backend/includes/globals.php
+3) change this line to the correct path
+4) require("/var/www/html/includes/config.inc.php");
+5) chmod 755 *.php
+6) ensure path to php is correct in all command scripts
+7) Setup processqueue.php to run  on a cron as often as 1 minute.
+    */5 * * * * /path/to/processqueue.php
+
+Script definitions:
+addzone.php - コマンドラインから実行可能：ゾーン追加
+(例) ./addzone.php ドメイン名 メインIP パスワード
+processqueue.php - 変更のあったゾーン情報を全て変更をかける
+rebuildzones.php - 全てのzoneファイルを再作成実施 
+rewriteconf.php - named.confの再作成を実施
+removeorphans.php - DB情報から消えたドメイン名のゾーンファイルを削除
+
